@@ -7,6 +7,7 @@ pipeline {
         GITHUB_USER = 'jinho-yoo-jack'                                   // 자신의 GitHub 계정(소문자)으로 바꾼다
         IMAGE       = "ghcr.io/${GITHUB_USER}/hello-k8s-app"
         GITOPS_REPO = "github.com/${GITHUB_USER}/hello-k8s-gitops.git"
+        APP_PORT    = '8080'                                           // 이 앱이 듣는 포트 (GitOps 값에도 반영한다)
     }
 
     triggers {
@@ -58,7 +59,7 @@ pipeline {
                         rm -rf gitops
                         git clone https://$GH_USER:$GH_TOKEN@$GITOPS_REPO gitops
                         cd gitops
-                        yq -i ".image.repository = \\"$IMAGE\\" | .image.tag = \\"$TAG\\"" hello/values.yaml
+                        yq -i ".image.repository = \\"$IMAGE\\" | .image.tag = \\"$TAG\\" | .containerPort = $APP_PORT" hello/values.yaml
                         git config user.name  "jenkins"
                         git config user.email "jenkins@k8s-lab.local"
                         git commit -am "deploy: hello-k8s-app $TAG"
